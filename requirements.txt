@@ -1,0 +1,9 @@
+numpy
+pandas
+pulp
+tensorflow
+keras
+statsmodels
+matplotlib
+openpyxl
+scikit-learn
