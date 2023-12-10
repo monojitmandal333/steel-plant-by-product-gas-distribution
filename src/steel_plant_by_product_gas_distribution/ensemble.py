@@ -2,19 +2,23 @@ import data_dictionary as dd
 from LSTM import *
 from LSSVM import *
 from data_preprocessing import *
+from typing import List,Dict
 
 class EnsembleModel():
     def __init__(
         self,
-        byproduct_gas_demand_columns,
-        data_preprocessing
+        byproduct_gas_demand_columns:List[str],
+        data_preprocessing:DataPreprocessing
     ):
         self.byproduct_gas_demand_columns = byproduct_gas_demand_columns
         self.__lstm_models = None
         self.__lssvm_models = None
         self.__dp = data_preprocessing
 
-    def train_lstm_models(self,data):
+    def train_lstm_models(
+        self,
+        data:pd.DataFrame
+    ) -> List[LSTMTrend]:
         lstm_models = {}
         for col in self.byproduct_gas_demand_columns:
             col_trend = f"{col}_trend"
@@ -39,7 +43,10 @@ class EnsembleModel():
         self.__lstm_models = lstm_models
         return lstm_models
     
-    def train_lssvm_models(self,data):
+    def train_lssvm_models(
+        self,
+        data:pd.DataFrame
+    ) -> List[LSSVMVolatility]:
         lssvm_models = {}
         for col in self.byproduct_gas_demand_columns:
             col_vol = f"{col}_vol"
@@ -51,7 +58,7 @@ class EnsembleModel():
             )
             print(f"LSSVM model training for {col_vol}")
             X_train,y_train = self.__dp.split_X_y(
-                data = df_train.sample(1000),
+                data = df_train.sample(5000),
                 column_name = col_vol
             )
             lssvm = LSSVMVolatility()
@@ -60,7 +67,10 @@ class EnsembleModel():
         self.__lssvm_models = lssvm_models
         return lssvm_models
     
-    def predict(self,data):
+    def predict(
+        self,
+        data:pd.DataFrame
+    ) -> Dict[str,float]:
         predict_dict = {}
         for col in self.byproduct_gas_demand_columns:
             data = self.__dp.apply_hodrick_prescott_filter(

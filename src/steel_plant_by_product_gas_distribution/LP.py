@@ -1,14 +1,15 @@
 import pulp
 import pandas as pd
+from typing import Dict
 
 class LP:
     def __init__(
         self,
-        cv_bfg = 930, 
-        cv_cog = 3900, 
-        cv_ldg = 1600, 
-        cv_mxg1 = 1050, 
-        cv_mxg2 = 2300
+        cv_bfg:int = 930, 
+        cv_cog:int = 3900, 
+        cv_ldg:int = 1600, 
+        cv_mxg1:int = 1050, 
+        cv_mxg2:int = 2300
     ):    
         self.cv_bfg = cv_bfg
         self.cv_cog = cv_cog
@@ -40,12 +41,12 @@ class LP:
         
     def find_decision_variable_output(
         self, 
-        bfg_gen, 
-        cog_gen, 
-        bfs_demand, 
-        sp_lcp_hsm_demand, 
-        h_t_minus_1
-    ):
+        bfg_gen:float, 
+        cog_gen:float, 
+        bfs_demand:float, 
+        sp_lcp_hsm_demand:float, 
+        h_t_minus_1:float
+    ) -> Dict[str,float]:
         cv_bfg = self.cv_bfg
         cv_cog = self.cv_cog
         cv_mxg1 = self.cv_mxg1

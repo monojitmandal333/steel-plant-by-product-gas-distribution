@@ -3,6 +3,16 @@ from LSSVM import *
 from LSTM import *
 import datetime as dt
 from ensemble import *
+from online_module import *
+from enum import Enum
+
+# By Product Gas Parameters----------------------------------------------------------
+class calorificValues(Enum):
+    cv_bfg = 930
+    cv_cog = 3900
+    cv_ldg = 1600
+    cv_mxg1 = 1050
+    cv_mxg2 = 2300
 
 byproduct_demand_columns = [dd.bfg_gen,dd.cog_gen,dd.bfs,dd.sp_lcp_hsm]
 
@@ -44,10 +54,36 @@ ensemble_model = EnsembleModel(byproduct_demand_columns,dp)
 lstm_models = ensemble_model.train_lstm_models(data=df_train)
 lssvm_models = ensemble_model.train_lssvm_models(data = df_train)
 
-for timestamp in df_test.head(100)[dd.timestamp]:
+lp = LP(
+    cv_bfg = calorificValues.cv_bfg.value,
+    cv_cog = calorificValues.cv_cog.value,
+    cv_ldg = calorificValues.cv_ldg.value,
+    cv_mxg1=calorificValues.cv_mxg1.value,
+    cv_mxg2=calorificValues.cv_mxg2.value
+)
+om = onlineModule(ensemble_model,lp)
+
+records = []
+for timestamp in df_test[dd.timestamp]:
     data = dp.get_online_record(
         data = df_test,
         timestamp = timestamp
     )
+    record = {"timestamp":timestamp}
     if len(data) == 5:
-        print(ensemble_model.predict(data = data))
+        prediction = ensemble_model.predict(data = data)
+        for col in prediction.keys():
+            record[col] = prediction[col]
+        decision_variables = om.output(data = data)
+        for col in decision_variables:
+            record[col] = decision_variables[col]
+    records.append(record)
+df_test_predicted = pd.DataFrame(records)
+df_test_predicted = df_test.merge(
+    df_test_predicted,
+    how = "left",
+    left_on = "Time",
+    right_on = "timestamp"
+)
+print(df_test_predicted)
+df_test_predicted.to_csv("data/output.csv")

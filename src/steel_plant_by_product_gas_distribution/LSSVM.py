@@ -4,19 +4,24 @@ import pandas as pd
 from data_preprocessing import DataPreprocessing
 import statsmodels.api as sm
 import pickle
-import data_dictionary as dd
+import src.steel_plant_by_product_gas_distribution.data_dictionary as dd
+from typing import Tuple
 
 class LSSVMVolatility:
     
     def __init__(self, sigma=2, c=1): 
-        self.sigma = sigma
-        self.c = c
-        self.__x = None
-        self.__y = None
-        self.__alpha = None
-        self.__b = None
+        self.sigma:float = sigma
+        self.c:int = c
+        self.__x:np.array = None
+        self.__y:np.array = None
+        self.__alpha:np.array= None
+        self.__b:float = None
     
-    def _getKernelBlock(self, x, y):
+    def _getKernelBlock(
+        self, 
+        x:np.array, 
+        y:np.array
+    ) -> np.array:
         sigma = self.sigma
         lam = 0.5/(sigma**2)
         c = self.c
@@ -24,7 +29,11 @@ class LSSVMVolatility:
         m = self._getKernelMatrix(x,y)+ np.eye(n)/c
         return m
 
-    def _getKernelMatrix(self, x, y):
+    def _getKernelMatrix(
+        self,
+        x:np.array, 
+        y:np.array
+    ) -> np.array:
         sigma = self.sigma
         lam = 0.5/(sigma**2)
         if x.ndim >1:
@@ -35,7 +44,10 @@ class LSSVMVolatility:
         else:
             return np.exp(-(np.linalg.norm(x-y)**2)*(lam))
 
-    def predict(self, x_test):
+    def predict(
+        self, 
+        x_test:np.array
+    ) -> np.array:
         sigma = self.sigma
         lam = 0.5/(sigma**2)
         alpha=self.__alpha
@@ -51,7 +63,11 @@ class LSSVMVolatility:
     it is not the loss function of the W(alpha,x) yet
     """
 
-    def _getParams(self, x_sample,y_sample):
+    def _getParams(
+        self, 
+        x_sample:np.array,
+        y_sample:np.array
+    ) -> Tuple[np.array,float]:
         sigma = self.sigma
         lam = 0.5/(sigma**2)
         alpha=self.__alpha
@@ -68,15 +84,24 @@ class LSSVMVolatility:
         b = params[0]
         return alpha,b
     
-    def fit(self,X,y):
+    def fit(
+        self,
+        X:np.array,
+        y:np.array
+    ):
         self.__x = np.array(X)
         self.__y = np.array(y)
         self.__alpha, self.__b = self._getParams(self.__x,self.__y)
     
-    def getParameters(self):
+    def getParameters(self) -> Tuple[np.array,float,np.array]:
         return self.__alpha, self.__b, self.__x
     
-    def setParameters(self,alpha,b,x):
+    def setParameters(
+        self,
+        alpha:float,
+        b:float,
+        x:np.array
+    ):
         self.__alpha = alpha
         self.__b = b
         self.__x = x
