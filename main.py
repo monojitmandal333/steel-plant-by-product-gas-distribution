@@ -1,10 +1,11 @@
-from data_preprocessing import *
-from LSSVM import *
-from LSTM import *
+from steel_plant_by_product_gas_distribution.data_preprocessing import *
+from steel_plant_by_product_gas_distribution.LSSVM import *
+from steel_plant_by_product_gas_distribution.LSTM import *
 import datetime as dt
-from ensemble import *
-from online_module import *
+from steel_plant_by_product_gas_distribution.ensemble import *
+from steel_plant_by_product_gas_distribution.online_module import *
 from enum import Enum
+import pickle
 
 # By Product Gas Parameters----------------------------------------------------------
 class calorificValues(Enum):
@@ -54,6 +55,18 @@ ensemble_model = EnsembleModel(byproduct_demand_columns,dp)
 lstm_models = ensemble_model.train_lstm_models(data=df_train)
 lssvm_models = ensemble_model.train_lssvm_models(data = df_train)
 
+# for model_name in lstm_models.keys():
+#     pickle.dump(
+#         lstm_models[model_name],
+#         open(f"artifactory/{model_name}.pkl",'wb')
+#     )
+# for model_name in lssvm_models.keys():
+#     pickle.dump(
+#         lssvm_models[model_name],
+#         open(f"artifactory/{model_name}.pkl",'wb')
+#     )
+
+
 lp = LP(
     cv_bfg = calorificValues.cv_bfg.value,
     cv_cog = calorificValues.cv_cog.value,
@@ -64,13 +77,14 @@ lp = LP(
 om = onlineModule(ensemble_model,lp)
 
 records = []
-for timestamp in df_test[dd.timestamp]:
+for timestamp in df_test.head(100)[dd.timestamp]:
     data = dp.get_online_record(
         data = df_test,
         timestamp = timestamp
     )
     record = {"timestamp":timestamp}
     if len(data) == 5:
+        print(data)
         prediction = ensemble_model.predict(data = data)
         for col in prediction.keys():
             record[col] = prediction[col]

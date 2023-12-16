@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-import data_dictionary as dd
+import steel_plant_by_product_gas_distribution.data_dictionary as dd
 import datetime as dt
 from sklearn.model_selection import TimeSeriesSplit
 """Data Preprocessing Module"""

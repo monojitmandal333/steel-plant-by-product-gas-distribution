@@ -1,10 +1,10 @@
 "LSSVM Class"
 import numpy as np
 import pandas as pd
-from data_preprocessing import DataPreprocessing
+from steel_plant_by_product_gas_distribution.data_preprocessing import DataPreprocessing
 import statsmodels.api as sm
 import pickle
-import src.steel_plant_by_product_gas_distribution.data_dictionary as dd
+import steel_plant_by_product_gas_distribution.data_dictionary as dd
 from typing import Tuple
 
 class LSSVMVolatility:

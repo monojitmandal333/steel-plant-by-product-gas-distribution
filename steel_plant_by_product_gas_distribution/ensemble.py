@@ -1,7 +1,7 @@
-import data_dictionary as dd
-from LSTM import *
-from LSSVM import *
-from data_preprocessing import *
+import steel_plant_by_product_gas_distribution.data_dictionary as dd
+from steel_plant_by_product_gas_distribution.LSTM import *
+from steel_plant_by_product_gas_distribution.LSSVM import *
+from steel_plant_by_product_gas_distribution.data_preprocessing import *
 from typing import List,Dict
 
 class EnsembleModel():
