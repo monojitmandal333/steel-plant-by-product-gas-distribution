@@ -47,7 +47,4 @@ flowchart TB;
     vol_seq_test --> lssvm_model_test;
     lstm_model_test --> pred_trend_test;
     lssvm_model_test --> pred_vol_test;
-    
-    lstm_model_train .-> lstm_model_test;
-    lssvm_model_train .-> lssvm_model_test;
 ```
